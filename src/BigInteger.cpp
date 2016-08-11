@@ -3,11 +3,13 @@
 //
 
 #include <sstream>
+#include <vector>
 #include "BigInteger.h"
 
 BigInt::BigInt(const BigInt &v) {
     num = v.getVal();
     sign = v.getSign();
+    clrHeadZero();
 }
 
 BigInt::BigInt(const string &s){
@@ -15,6 +17,7 @@ BigInt::BigInt(const string &s){
     num = s;
     if(s[0]=='-')
         num = num.substr(1);
+    clrHeadZero();
 }
 
 BigInt::BigInt(int n) {
@@ -25,6 +28,7 @@ BigInt::BigInt(int n) {
     else
         num = ss.str().substr(1);
     sign = num[0]!='-';
+    clrHeadZero();
 }
 
 void BigInt::setSign(bool f) {
@@ -55,12 +59,14 @@ BigInt &BigInt::operator=(const string &s) {
         num = s;
         sign = true;
     }
+    clrHeadZero();
     return *this;
 }
 
 BigInt &BigInt::operator=(const BigInt &v) {
     num = v.getVal();
     sign = v.getSign();
+    clrHeadZero();
     return *this;
 }
 
@@ -154,9 +160,21 @@ BigInt BigInt::operator-(const BigInt &v) {
 }
 
 BigInt BigInt::operator*(const BigInt &v) {
-
+    BigInt res;
+    res = mul(v);
+    res.setSign(!(sign ^ v.getSign()));
+    return res;
 }
 
+// clear all 0 in the front of num
+void BigInt::clrHeadZero() {
+    for(int i=0; i<num.size(); i++) {
+        if(num[i] != '0') {
+            num = num.substr(i);
+            break;
+        }
+    }
+}
 
 int BigInt::numCmp(const BigInt &v) {
     string tmp = v.getVal();
@@ -178,7 +196,7 @@ int BigInt::numCmp(const BigInt &v) {
 BigInt BigInt::add(BigInt v) {
     BigInt res(*this);
     string tmp = v.getVal(), resStr = res.getVal();
-    int len1=num.size(), len2=tmp.size(), len, carry;
+    int len1=resStr.size(), len2=tmp.size(), len, carry;
     len = len1>len2?len1:len2;
     carry = 0;
 
@@ -200,7 +218,7 @@ BigInt BigInt::add(BigInt v) {
 BigInt BigInt::sub(BigInt v) {
     BigInt res(*this);
     string tmp = v.getVal(), resStr = res.getVal();
-    int len1=num.size(), len2=tmp.size(), len, carry;
+    int len1=resStr.size(), len2=tmp.size(), len, carry;
     len = len1>len2?len1:len2;
     carry = 0;
 
@@ -223,5 +241,33 @@ BigInt BigInt::sub(BigInt v) {
 }
 
 BigInt BigInt::mul(BigInt v) {
+    BigInt res(*this);
+    string tmp = v.getVal(), resStr = res.getVal();
+    int len1 = resStr.size(), len2=tmp.size(), len, carry;
+    len = len1+len2;
+    carry = 0;
 
+    vector<int> ans(len-1, 0);
+    //for num1*num2.
+    // i->index of num1; j->index of num2;
+    // (i+j)->index of num1*num2
+    // Use vector because char is limited to 255, which is not enough for big number like 9, 8, 7...
+    for(int i=len1-1; i>=0; i--) {
+        for(int j=len2-1; j>=0; j--) {
+            ans[i+j] += (resStr[i]-'0')*(tmp[j]-'0');
+        }
+    }
+
+    resStr.clear();
+    for(int i=ans.size()-1; i>=0; i--) {
+        int sum = ans[i]+carry;
+        resStr.insert(0, 1, sum%10+'0');
+        carry = sum / 10;
+    }
+    while(carry > 0) {
+        resStr.insert(0, 1, carry%10+'0');
+        carry = carry / 10;
+    }
+    res = resStr;
+    return res;
 }

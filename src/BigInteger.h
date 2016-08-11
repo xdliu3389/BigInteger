@@ -33,6 +33,7 @@ public:
     BigInt operator * (const BigInt &v);
 
 private:
+    void clrHeadZero();
     int numCmp(const BigInt &v);
     BigInt add(BigInt v);
     BigInt sub(BigInt v);
