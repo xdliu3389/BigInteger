@@ -12,11 +12,15 @@ using namespace std;
 class BigInt {
 public:
     BigInt() : num(), sign(true){}
+    BigInt(const BigInt &v);
     BigInt(const string &s);
     BigInt(int n);
 
+    void setSign(bool f);
+    string printVal() const;
     string getVal() const;
     bool getSign() const;
+    BigInt &operator = (const string &s);
     BigInt &operator = (const BigInt &v);
     bool operator != (const BigInt &v);
     bool operator == (const BigInt &v);
@@ -24,15 +28,15 @@ public:
     bool operator >= (const BigInt &v);
     bool operator < (const BigInt &v);
     bool operator <= (const BigInt &v);
-    BigInt &operator + (const BigInt &v);
-    BigInt &operator - (const BigInt &v);
-    BigInt &operator * (const BigInt &v);
+    BigInt operator + (const BigInt &v);
+    BigInt operator - (const BigInt &v);
+    BigInt operator * (const BigInt &v);
 
 private:
     int numCmp(const BigInt &v);
-    BigInt &add(const BigInt &v);
-    BigInt &sub(const BigInt &v);
-    BigInt &mul(const BigInt &v);
+    BigInt add(BigInt v);
+    BigInt sub(BigInt v);
+    BigInt mul(BigInt v);
 
     string num;
     bool sign;
